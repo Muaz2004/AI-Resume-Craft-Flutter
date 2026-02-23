@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';                
 import 'package:flutter_riverpod/flutter_riverpod.dart'; 
-import 'package:firebase_auth/firebase_auth.dart';       
 import '../../../shared/providers/auth_providers.dart';
 
 
@@ -14,6 +13,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
+  @override
+void dispose() {
+  _emailController.dispose();
+  _passwordController.dispose();
+  super.dispose();
+}
 
 
   @override
@@ -45,6 +50,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ? CircularProgressIndicator(color: Colors.white)
                   : Text('Login'),
             ),
+            Row(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+    Text("Don't have an account? "),
+    GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => SignupScreen()),
+        );
+      },
+      child: Text(
+        "Sign Up",
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.primary,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+  ],
+),
+
           ],
         ),
       ),
