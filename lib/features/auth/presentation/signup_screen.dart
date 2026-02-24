@@ -1,19 +1,23 @@
-import 'package:flutter/material.dart';                
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:resume_ai/features/auth/presentation/signup_screen.dart'; 
-import '../../../shared/providers/auth_providers.dart';
+import 'package:resume_ai/shared/providers/auth_providers.dart';
 
 
-class LoginScreen extends ConsumerStatefulWidget {
+
+
+
+class SignupScreen extends ConsumerStatefulWidget {
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _SignupScreenState createState() => _SignupScreenState();
+
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> {
+class _SignupScreenState extends ConsumerState<SignupScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
+
   @override
 void dispose() {
   _emailController.dispose();
@@ -21,11 +25,10 @@ void dispose() {
   super.dispose();
 }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login')),
+      appBar: AppBar(title: Text('Sign Up')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -46,51 +49,29 @@ void dispose() {
               Text(_errorMessage!, style: TextStyle(color: Colors.red)),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _isLoading ? null : _login,
+              onPressed: _isLoading ? null : _signup,
               child: _isLoading
                   ? CircularProgressIndicator(color: Colors.white)
-                  : Text('Login'),
+                  : Text('Sign Up'),
             ),
-            Row(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: [
-    Text("Don't have an account? "),
-    GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => SignupScreen()),
-        );
-      },
-      child: Text(
-        "Sign Up",
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.primary,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    ),
-  ],
-),
-
           ],
         ),
       ),
     );
   }
 
-  Future<void> _login() async {
+  Future<void> _signup() async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
-
-    final loginService = ref.read(loginServiceProvider);
+    final authService = ref.read(signUpServiceProvider);
     try {
-      await loginService.signInWithEmailAndPassword(
-       _emailController.text.trim(),
-       _passwordController.text.trim(),
-);
+      await authService.signUp(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+      Navigator.pop(context); // Go back to login screen
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();
@@ -101,6 +82,7 @@ void dispose() {
       });
     }
   }
+
 }
 
 
