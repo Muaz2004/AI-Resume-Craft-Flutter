@@ -14,7 +14,7 @@ class AuthGate extends ConsumerWidget {
     return authState.when(
       data: (user) {
         if (user != null) {
-          return const HomeScreen();
+          return HomeScreen();
         } else {
           return  LoginScreen();
         }
