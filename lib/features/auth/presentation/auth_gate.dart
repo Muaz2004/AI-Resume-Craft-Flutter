@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:resume_ai/features/auth/presentation/home_screen.dart';
 import '../../../shared/providers/auth_providers.dart';
 import 'login_screen.dart';
+import 'splash_screen.dart';
 
 class AuthGate extends ConsumerWidget {
   const AuthGate({super.key});
@@ -19,10 +20,7 @@ class AuthGate extends ConsumerWidget {
           return  LoginScreen();
         }
       },
-      loading: () =>
-          const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          ),
+      loading: () => const SplashScreen(),
       error: (error, stack) =>
           Scaffold(
             body: Center(child: Text('Error: $error')),

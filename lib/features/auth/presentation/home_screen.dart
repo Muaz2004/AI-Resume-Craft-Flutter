@@ -16,12 +16,18 @@ class HomeScreen extends ConsumerWidget {
           children: [
             Text('Welcome, ${user?.email ?? 'User'}!'),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                ref.read(logoutServiceProvider).signOut();
-              },
-              child: Text('Logout'),
-            ),
+           ElevatedButton(
+              onPressed: () async {
+                try {
+                   await ref.read(logoutServiceProvider).signOut();} 
+                catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Logout failed: $e')),
+       );
+     }
+  },
+  child: Text('Logout'),
+),
           ],
         ),
       ),
