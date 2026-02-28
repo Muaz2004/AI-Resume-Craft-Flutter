@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:resume_ai/features/auth/presentation/home_screen.dart';
+import 'package:resume_ai/shared/widgets/main_navigation_screen.dart';
 import '../../../shared/providers/auth_providers.dart';
 import 'login_screen.dart';
 import 'splash_screen.dart';
@@ -15,7 +16,7 @@ class AuthGate extends ConsumerWidget {
     return authState.when(
       data: (user) {
         if (user != null) {
-          return HomeScreen();
+          return MainNavigationScreen();
         } else {
           return  LoginScreen();
         }
