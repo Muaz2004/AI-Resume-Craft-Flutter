@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:resume_ai/features/resume/presentation/resume_detail_screen.dart';
 import 'package:resume_ai/features/resume/presentation/resume_form_screen.dart';
 import 'package:resume_ai/shared/providers/resume_provider.dart';
 
@@ -37,7 +38,11 @@ class ResumeListScreen extends ConsumerWidget {
                 isThreeLine: true,
 
                 onTap: () {
-                 
+                         Navigator.push( context,
+                MaterialPageRoute(
+                builder: (_) => ResumeDetailScreen(resume: resume),
+                     ),
+                 );
                 },
               );
             },
