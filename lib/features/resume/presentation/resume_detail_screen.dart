@@ -4,7 +4,7 @@ import 'package:resume_ai/features/resume/presentation/resume_form_screen.dart';
 import 'package:resume_ai/shared/providers/resume_provider.dart';
 
 class ResumeDetailScreen extends ConsumerWidget {
-  final String resumeId; 
+  final String resumeId;
 
   const ResumeDetailScreen({super.key, required this.resumeId});
 
@@ -15,9 +15,8 @@ class ResumeDetailScreen extends ConsumerWidget {
     return resumeAsync.when(
       data: (resume) {
         if (resume == null) {
-          return Scaffold(
-            appBar: AppBar(title: const Text('Resume Detail')),
-            body: const Center(child: Text('Resume not found')),
+          return const Scaffold(
+            body: Center(child: Text('Resume not found')),
           );
         }
 
@@ -62,37 +61,31 @@ class ResumeDetailScreen extends ConsumerWidget {
                     await ref
                         .read(resumeServiceProvider)
                         .deleteResume(resume.userId, resume.resumeId);
-                    ref.invalidate(userResumesProvider);
-                    Navigator.pop(context); // close detail screen
+                    Navigator.pop(context); 
                   }
                 },
               ),
             ],
           ),
           body: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _sectionTitle("Personal Information"),
-                Text('Name: ${resume.fullName}',
-                    style: const TextStyle(fontSize: 18)),
+                Text('Name: ${resume.fullName}', style: const TextStyle(fontSize: 18)),
                 const SizedBox(height: 8),
-                Text('Email: ${resume.email}',
-                    style: const TextStyle(fontSize: 18)),
+                Text('Email: ${resume.email}', style: const TextStyle(fontSize: 18)),
                 const SizedBox(height: 8),
-                Text('Phone: ${resume.phone}',
-                    style: const TextStyle(fontSize: 18)),
+                Text('Phone: ${resume.phone}', style: const TextStyle(fontSize: 18)),
                 const SizedBox(height: 8),
-                Text('Address: ${resume.address}',
-                    style: const TextStyle(fontSize: 18)),
+                Text('Address: ${resume.address}', style: const TextStyle(fontSize: 18)),
                 const SizedBox(height: 16),
                 _sectionTitle("Education"),
                 ...resume.education.map(
                   (edu) => Padding(
                     padding: const EdgeInsets.only(bottom: 4),
-                    child: Text("• ${edu['details']}",
-                        style: const TextStyle(fontSize: 16)),
+                    child: Text("• ${edu['details']}", style: const TextStyle(fontSize: 16)),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -100,23 +93,23 @@ class ResumeDetailScreen extends ConsumerWidget {
                 ...resume.experience.map(
                   (exp) => Padding(
                     padding: const EdgeInsets.only(bottom: 4),
-                    child: Text("• ${exp['details']}",
-                        style: const TextStyle(fontSize: 16)),
+                    child: Text("• ${exp['details']}", style: const TextStyle(fontSize: 16)),
                   ),
                 ),
                 const SizedBox(height: 16),
                 _sectionTitle("Skills"),
-                Text(resume.skills.join(', '),
-                    style: const TextStyle(fontSize: 16)),
+                Text(resume.skills.join(', '), style: const TextStyle(fontSize: 16)),
               ],
             ),
           ),
         );
       },
-      loading: () =>
-          const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (e, st) =>
-          const Scaffold(body: Center(child: Text('Failed to load resume'))),
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      error: (e, st) => const Scaffold(
+        body: Center(child: Text('Failed to load resume')),
+      ),
     );
   }
 
@@ -125,10 +118,7 @@ class ResumeDetailScreen extends ConsumerWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Text(
         title,
-        style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
       ),
     );
   }

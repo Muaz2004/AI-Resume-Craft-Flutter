@@ -15,7 +15,6 @@ class ResumeListScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('My Resumes'),
       ),
-
       body: resumesAsync.when(
         data: (resumes) {
           if (resumes.isEmpty) {
@@ -28,7 +27,6 @@ class ResumeListScreen extends ConsumerWidget {
             itemCount: resumes.length,
             itemBuilder: (context, index) {
               final resume = resumes[index];
-
               return ListTile(
                 title: Text(resume.fullName),
                 subtitle: Text(
@@ -39,7 +37,8 @@ class ResumeListScreen extends ConsumerWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => ResumeDetailScreen(resumeId: resume.resumeId),
+                      builder: (_) =>
+                          ResumeDetailScreen(resumeId: resume.resumeId),
                     ),
                   );
                 },
@@ -47,21 +46,19 @@ class ResumeListScreen extends ConsumerWidget {
             },
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => const Center(child: Text('Failed to load resumes')),
+        loading: () =>
+            const Center(child: CircularProgressIndicator()),
+        error: (e, st) =>
+            const Center(child: Text('Failed to load resumes')),
       ),
-
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await Navigator.push(
+        onPressed: () {
+          Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const ResumeFormScreen(),
+              builder: (_) => const ResumeFormScreen(),
             ),
           );
-
-      
-          ref.invalidate(userResumesProvider);
         },
         child: const Icon(Icons.add),
       ),
