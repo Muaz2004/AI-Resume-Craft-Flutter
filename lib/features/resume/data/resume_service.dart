@@ -4,6 +4,40 @@ import '../data/resume_model.dart';
 class ResumeService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+
+
+/// Stream all resumes of a user in real-time
+Stream<List<ResumeModel>> streamResumesByUserId(String userId) {
+  try {
+    return _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('resumes')
+        .orderBy('updatedAt', descending: true) // optional: latest first
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => ResumeModel.fromFirestore(doc.data() as Map<String, dynamic>))
+            .toList());
+  } catch (e) {
+    throw Exception('Failed to stream resumes: $e');
+  }
+}
+
+  Stream<ResumeModel?> streamResumeById(String userId, String resumeId) {
+    return _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('resumes')
+        .doc(resumeId)
+        .snapshots()
+        .map((doc) {
+      if (doc.exists) {
+        return ResumeModel.fromFirestore(doc.data() as Map<String, dynamic>);
+      }
+      return null;
+    });
+  }
+
   /// Create a new resume 
   
   Future<void> createResume(ResumeModel resume) async {
@@ -41,23 +75,19 @@ class ResumeService {
   /// Update a resume 
   
   Future<void> updateResume(ResumeModel resume) async {
-    try {
-      await _firestore
-          .collection('users')
-          .doc(resume.userId)
-          .collection('resumes')
-          .doc(resume.resumeId)
-          .update({
-        ...resume.toFirestore(),
-        'updatedAt': Timestamp.now(), 
-      });
-    } catch (e) {
-      throw Exception('Failed to update resume: $e');
-    }
+  try {
+    await _firestore
+        .collection('users')
+        .doc(resume.userId)
+        .collection('resumes')
+        .doc(resume.resumeId)
+        .set(resume.toFirestore(), SetOptions(merge: true)); 
+  } catch (e) {
+    throw Exception('Failed to update resume: $e');
   }
-
+}
   /// Delete a resume
-  /// 
+  
   Future<void> deleteResume(String userId, String resumeId) async {
     try {
       await _firestore
@@ -88,3 +118,6 @@ class ResumeService {
     }
   }
 }
+
+
+

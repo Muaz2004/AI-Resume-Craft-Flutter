@@ -5,7 +5,9 @@ import 'package:resume_ai/features/resume/data/resume_model.dart';
 import 'package:resume_ai/shared/providers/resume_provider.dart';
 
 class ResumeFormScreen extends ConsumerStatefulWidget {
-  const ResumeFormScreen({super.key});
+  final ResumeModel? existingResume; 
+
+  const ResumeFormScreen({super.key, this.existingResume});
 
   @override
   ConsumerState<ResumeFormScreen> createState() => _ResumeFormScreenState();
@@ -21,6 +23,24 @@ class _ResumeFormScreenState extends ConsumerState<ResumeFormScreen> {
   final _educationController = TextEditingController();
   final _addressController = TextEditingController();
   final _experienceController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Pre-fill controllers if editing an existing resume
+    if (widget.existingResume != null) {
+      final r = widget.existingResume!;
+      _nameController.text = r.fullName;
+      _emailController.text = r.email;
+      _phoneController.text = r.phone;
+      _addressController.text = r.address;
+      _skillsController.text = r.skills.join(', ');
+      _educationController.text =
+          r.education.map((e) => e['details']).join(', ');
+      _experienceController.text =
+          r.experience.map((e) => e['details']).join(', ');
+    }
+  }
 
   @override
   void dispose() {
@@ -44,33 +64,40 @@ class _ResumeFormScreenState extends ConsumerState<ResumeFormScreen> {
     ref.read(resumeCreationStateProvider.notifier).state = true;
 
     final resume = ResumeModel(
-      resumeId: DateTime.now().millisecondsSinceEpoch.toString(),
+      resumeId: widget.existingResume?.resumeId ??
+          DateTime.now().millisecondsSinceEpoch.toString(),
       userId: user.uid,
       fullName: _nameController.text.trim(),
       email: _emailController.text.trim(),
       phone: _phoneController.text.trim(),
       address: _addressController.text.trim(),
-      education: [
-        {'details': _educationController.text.trim()}
-      ],
-      experience: [
-        {'details': _experienceController.text.trim()}
-      ],
       skills: _skillsController.text.split(',').map((e) => e.trim()).toList(),
-      createdAt: DateTime.now(),
+      education: _educationController.text
+          .split(',')
+          .map((e) => {'details': e.trim()})
+          .toList(),
+      experience: _experienceController.text
+          .split(',')
+          .map((e) => {'details': e.trim()})
+          .toList(),
+      createdAt: widget.existingResume?.createdAt ?? DateTime.now(),
       updatedAt: DateTime.now(),
     );
 
     try {
-      await ref.read(resumeServiceProvider).createResume(resume);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Resume saved successfully!')),
-      );
+      if (widget.existingResume != null) {
+        await ref.read(resumeServiceProvider).updateResume(resume);
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Resume updated!')));
+      } else {
+        await ref.read(resumeServiceProvider).createResume(resume);
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Resume created!')));
+      }
       Navigator.pop(context);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save resume: $e')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Failed to save resume: $e')));
     } finally {
       ref.read(resumeCreationStateProvider.notifier).state = false;
     }
@@ -82,7 +109,7 @@ class _ResumeFormScreenState extends ConsumerState<ResumeFormScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Your Resume'),
+        title: Text(widget.existingResume != null ? 'Edit Resume' : 'Create Resume'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -151,12 +178,14 @@ class _ResumeFormScreenState extends ConsumerState<ResumeFormScreen> {
 
               const SizedBox(height: 20),
 
-              // Generate Resume Button
+              // Save Button
               isLoading
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
                       onPressed: _saveResume,
-                      child: const Text('Generate Resume'),
+                      child: Text(
+                        widget.existingResume != null ? 'Update Resume' : 'Generate Resume',
+                      ),
                     ),
             ],
           ),

@@ -3,25 +3,24 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:resume_ai/features/resume/data/resume_service.dart';
 import '../../features/resume/data/resume_model.dart';
 
-
 final resumeServiceProvider = Provider((ref) => ResumeService());
 
-
-final userResumesProvider = FutureProvider.autoDispose<List<ResumeModel>>((ref) async {
+///  StreamProvider for real-time updates of user's resumes
+final userResumesProvider = StreamProvider.autoDispose<List<ResumeModel>>((ref) {
   final user = FirebaseAuth.instance.currentUser;
-  if (user == null) return [];
+  if (user == null) return const Stream.empty();
 
   final service = ref.read(resumeServiceProvider);
-  return await service.getResumesByUserId(user.uid);
+  return service.streamResumesByUserId(user.uid);
 });
 
-
-final resumeByIdProvider = FutureProvider.family.autoDispose<ResumeModel?, String>((ref, resumeId) async {
+/// StreamProvider for a single resume by ID
+final resumeByIdProvider = StreamProvider.family.autoDispose<ResumeModel?, String>((ref, resumeId) {
   final user = FirebaseAuth.instance.currentUser;
-  if (user == null) return null;
+  if (user == null) return const Stream.empty();
 
   final service = ref.read(resumeServiceProvider);
-  return await service.getResume(user.uid, resumeId);
+  return service.streamResumeById(user.uid, resumeId);
 });
 
 /// StateProvider to track loading/creation state for forms
