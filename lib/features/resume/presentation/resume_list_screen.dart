@@ -34,31 +34,25 @@ class ResumeListScreen extends ConsumerWidget {
                 subtitle: Text(
                   '${resume.email}\nCreated: ${resume.createdAt.toLocal()}',
                 ),
-
                 isThreeLine: true,
-
                 onTap: () {
-                         Navigator.push( context,
-                MaterialPageRoute(
-                builder: (_) => ResumeDetailScreen(resume: resume),
-                     ),
-                 );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ResumeDetailScreen(resumeId: resume.resumeId),
+                    ),
+                  );
                 },
               );
             },
           );
         },
-
-        loading: () =>
-            const Center(child: CircularProgressIndicator()),
-
-        error: (e, st) =>
-            const Center(child: Text('Failed to load resumes')),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, st) => const Center(child: Text('Failed to load resumes')),
       ),
 
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          // wait navigation result
           await Navigator.push(
             context,
             MaterialPageRoute(
@@ -66,7 +60,7 @@ class ResumeListScreen extends ConsumerWidget {
             ),
           );
 
-          //  refresh resumes after creation
+      
           ref.invalidate(userResumesProvider);
         },
         child: const Icon(Icons.add),
