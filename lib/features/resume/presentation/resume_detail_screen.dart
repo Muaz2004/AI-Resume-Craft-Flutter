@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:resume_ai/features/resume/presentation/resume_form_screen.dart';
 import 'package:resume_ai/shared/providers/resume_provider.dart';
+import 'package:resume_ai/shared/providers/pdf_notifier.dart'; 
 
 class ResumeDetailScreen extends ConsumerWidget {
   final String resumeId;
@@ -61,8 +62,38 @@ class ResumeDetailScreen extends ConsumerWidget {
                     await ref
                         .read(resumeServiceProvider)
                         .deleteResume(resume.userId, resume.resumeId);
-                    Navigator.pop(context); 
+                    Navigator.pop(context);
                   }
+                },
+              ),
+              // PDF Download Button 
+              Consumer(
+                builder: (context, ref, _) {
+                  final pdfState = ref.watch(pdfNotifierProvider);
+                  return pdfState.when(
+                    data: (_) => IconButton(
+                      icon: const Icon(Icons.download),
+                      onPressed: () async {
+                        final pdfNotifier =
+                            ref.read(pdfNotifierProvider.notifier);
+                        await pdfNotifier.generatePdf(resume.toFirestore()); 
+                      },
+                    ),
+                    loading: () => const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    error: (e, _) => IconButton(
+                      icon: const Icon(Icons.error),
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Failed to generate PDF'),
+                          ),
+                        );
+                      },
+                    ),
+                  );
                 },
               ),
             ],
@@ -73,19 +104,24 @@ class ResumeDetailScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _sectionTitle("Personal Information"),
-                Text('Name: ${resume.fullName}', style: const TextStyle(fontSize: 18)),
+                Text('Name: ${resume.fullName}',
+                    style: const TextStyle(fontSize: 18)),
                 const SizedBox(height: 8),
-                Text('Email: ${resume.email}', style: const TextStyle(fontSize: 18)),
+                Text('Email: ${resume.email}',
+                    style: const TextStyle(fontSize: 18)),
                 const SizedBox(height: 8),
-                Text('Phone: ${resume.phone}', style: const TextStyle(fontSize: 18)),
+                Text('Phone: ${resume.phone}',
+                    style: const TextStyle(fontSize: 18)),
                 const SizedBox(height: 8),
-                Text('Address: ${resume.address}', style: const TextStyle(fontSize: 18)),
+                Text('Address: ${resume.address}',
+                    style: const TextStyle(fontSize: 18)),
                 const SizedBox(height: 16),
                 _sectionTitle("Education"),
                 ...resume.education.map(
                   (edu) => Padding(
                     padding: const EdgeInsets.only(bottom: 4),
-                    child: Text("• ${edu['details']}", style: const TextStyle(fontSize: 16)),
+                    child: Text("• ${edu['details']}",
+                        style: const TextStyle(fontSize: 16)),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -93,12 +129,14 @@ class ResumeDetailScreen extends ConsumerWidget {
                 ...resume.experience.map(
                   (exp) => Padding(
                     padding: const EdgeInsets.only(bottom: 4),
-                    child: Text("• ${exp['details']}", style: const TextStyle(fontSize: 16)),
+                    child: Text("• ${exp['details']}",
+                        style: const TextStyle(fontSize: 16)),
                   ),
                 ),
                 const SizedBox(height: 16),
                 _sectionTitle("Skills"),
-                Text(resume.skills.join(', '), style: const TextStyle(fontSize: 16)),
+                Text(resume.skills.join(', '),
+                    style: const TextStyle(fontSize: 16)),
               ],
             ),
           ),
