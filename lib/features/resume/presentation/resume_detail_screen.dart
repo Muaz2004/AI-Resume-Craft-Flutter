@@ -77,6 +77,7 @@ class ResumeDetailScreen extends ConsumerWidget {
                         final pdfNotifier =
                             ref.read(pdfNotifierProvider.notifier);
                         await pdfNotifier.generatePdf(resume.toFirestore()); 
+                        await pdfNotifier.previewPdf();
                       },
                     ),
                     loading: () => const Padding(
