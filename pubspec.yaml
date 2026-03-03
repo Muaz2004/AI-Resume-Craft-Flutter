@@ -23,6 +23,7 @@ dependencies:
 
   # Networking (AI API)
   dio: ^5.7.0
+  http: ^1.6.0
 
   # PDF Generation
   printing: ^5.13.4
@@ -31,7 +32,7 @@ dependencies:
   intl: ^0.20.2
 
   # Environment Variables
-  flutter_dotenv: ^5.0.2
+  flutter_dotenv: ^6.0.0
 
 dev_dependencies:
   flutter_test:
@@ -40,9 +41,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
-  # Fonts (assets)
   assets:
+    - .env
     - lib/assets/fonts/Roboto-Regular.ttf
     - lib/assets/fonts/Roboto-Bold.ttf
 

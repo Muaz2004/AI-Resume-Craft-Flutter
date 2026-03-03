@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:resume_ai/features/resume/data/resume_model.dart';
+import 'package:resume_ai/shared/providers/resume_ai_provider.dart';
 import 'package:resume_ai/shared/providers/resume_provider.dart';
 
 class ResumeFormScreen extends ConsumerStatefulWidget {
@@ -175,6 +176,41 @@ class _ResumeFormScreenState extends ConsumerState<ResumeFormScreen> {
                 controller: _experienceController,
                 decoration: const InputDecoration(labelText: 'Experience'),
               ),
+
+              const SizedBox(height: 10),
+
+// AI Enhance Button
+Consumer(
+  builder: (context, ref, child) {
+    final aiState = ref.watch(resumeAiProvider);
+
+    return aiState.isLoading
+        ? const CircularProgressIndicator()
+        : ElevatedButton(
+           onPressed: () async {
+  try {
+    await ref.read(resumeAiProvider.notifier).enhance(_experienceController.text);
+
+    final result = ref.read(resumeAiProvider);
+    if (result.asData != null) {
+      _experienceController.text = result.asData!.value ?? '';
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Experience enhanced!')),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('AI Enhancement failed: $e')),
+    );
+  }
+},
+            child: const Text('Enhance Experience with AI'),
+          );
+  },
+),
+
+              
 
               const SizedBox(height: 20),
 
