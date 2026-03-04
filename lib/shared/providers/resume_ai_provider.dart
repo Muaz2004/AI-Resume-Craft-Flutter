@@ -19,11 +19,12 @@ class ResumeAiNotifier extends AsyncNotifier<String?> {
     return null;
   }
 
-  
-  Future<void> enhance(String input, ResumeSection section) async { 
+  Future<void> enhance(String input) async {
     try {
       state = const AsyncValue.loading();
-      final result = await _service.enhanceText(input, section); 
+
+      final result = await _service.enhanceExperience(input);
+
       state = AsyncValue.data(result);
     } catch (e, st) {
       state = AsyncValue.error(e, st);

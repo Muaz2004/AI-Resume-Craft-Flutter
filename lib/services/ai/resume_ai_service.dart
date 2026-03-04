@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-enum ResumeSection { experience, skills, education } 
+enum ResumeSection { experience, skills, education } // AI ENHANCEMENT CHANGE
 
 class ResumeAiService {
   final String _endpoint =
@@ -10,14 +10,14 @@ class ResumeAiService {
 
   String get _apiKey => dotenv.env['GROQ_API_KEY'] ?? '';
 
-  
-  Future<String> enhanceText(String input, ResumeSection section) async { 
+  // UPDATED: single method for multiple sections
+  Future<String> enhanceText(String input, ResumeSection section) async { // AI ENHANCEMENT CHANGE
     if (_apiKey.isEmpty) {
       throw Exception("API Key not found in .env");
     }
 
     String prompt = "";
-    switch (section) { 
+    switch (section) { // AI ENHANCEMENT CHANGE
       case ResumeSection.experience:
         prompt = "Rewrite the user's experience to be concise, achievement-oriented, and results-driven. Use strong action verbs. Quantify impact when possible. Make it ATS-friendly. Do NOT include explanations, alternatives, or 'Here is the revised version'. Return ONLY the final improved experience text as plain text.";
         break;
