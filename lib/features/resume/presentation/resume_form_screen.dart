@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:resume_ai/features/resume/data/resume_model.dart';
+import 'package:resume_ai/services/ai/resume_ai_service.dart';
 import 'package:resume_ai/shared/providers/resume_ai_provider.dart';
 import 'package:resume_ai/shared/providers/resume_provider.dart';
 
@@ -180,32 +181,102 @@ class _ResumeFormScreenState extends ConsumerState<ResumeFormScreen> {
               const SizedBox(height: 10),
 
 // AI Enhance Button
+
 Consumer(
   builder: (context, ref, child) {
     final aiState = ref.watch(resumeAiProvider);
-
     return aiState.isLoading
         ? const CircularProgressIndicator()
         : ElevatedButton(
-           onPressed: () async {
-  try {
-    await ref.read(resumeAiProvider.notifier).enhance(_experienceController.text);
+            onPressed: () async {
+              try {
+                await ref
+                    .read(resumeAiProvider.notifier)
+                    .enhance(_experienceController.text, ResumeSection.experience);
 
-    final result = ref.read(resumeAiProvider);
-    if (result.asData != null) {
-      _experienceController.text = result.asData!.value ?? '';
-    }
+                final result = ref.read(resumeAiProvider);
+                if (result.asData != null) {
+                  _experienceController.text = result.asData!.value ?? '';
+                }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Experience enhanced!')),
-    );
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('AI Enhancement failed: $e')),
-    );
-  }
-},
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Experience enhanced!')),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('AI Enhancement failed: $e')),
+                );
+              }
+            },
             child: const Text('Enhance Experience with AI'),
+          );
+  },
+),
+
+const SizedBox(height: 5),
+
+// Skills Button
+Consumer(
+  builder: (context, ref, child) {
+    final aiState = ref.watch(resumeAiProvider);
+    return aiState.isLoading
+        ? const CircularProgressIndicator()
+        : ElevatedButton(
+            onPressed: () async {
+              try {
+                await ref
+                    .read(resumeAiProvider.notifier)
+                    .enhance(_skillsController.text, ResumeSection.skills);
+
+                final result = ref.read(resumeAiProvider);
+                if (result.asData != null) {
+                  _skillsController.text = result.asData!.value ?? '';
+                }
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Skills enhanced!')),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('AI Enhancement failed: $e')),
+                );
+              }
+            },
+            child: const Text('Enhance Skills with AI'),
+          );
+  },
+),
+
+const SizedBox(height: 5),
+
+// Education Button
+Consumer(
+  builder: (context, ref, child) {
+    final aiState = ref.watch(resumeAiProvider);
+    return aiState.isLoading
+        ? const CircularProgressIndicator()
+        : ElevatedButton(
+            onPressed: () async {
+              try {
+                await ref
+                    .read(resumeAiProvider.notifier)
+                    .enhance(_educationController.text, ResumeSection.education);
+
+                final result = ref.read(resumeAiProvider);
+                if (result.asData != null) {
+                  _educationController.text = result.asData!.value ?? '';
+                }
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Education enhanced!')),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('AI Enhancement failed: $e')),
+                );
+              }
+            },
+            child: const Text('Enhance Education with AI'),
           );
   },
 ),

@@ -2,15 +2,31 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+enum ResumeSection { experience, skills, education } 
+
 class ResumeAiService {
   final String _endpoint =
-    "https://api.groq.com/openai/v1/chat/completions";
+      "https://api.groq.com/openai/v1/chat/completions";
 
   String get _apiKey => dotenv.env['GROQ_API_KEY'] ?? '';
 
-  Future<String> enhanceExperience(String input) async {
+  
+  Future<String> enhanceText(String input, ResumeSection section) async { 
     if (_apiKey.isEmpty) {
       throw Exception("API Key not found in .env");
+    }
+
+    String prompt = "";
+    switch (section) { 
+      case ResumeSection.experience:
+        prompt = "Rewrite the user's experience to be concise, achievement-oriented, and results-driven. Use strong action verbs. Quantify impact when possible. Make it ATS-friendly. Do NOT include explanations, alternatives, or 'Here is the revised version'. Return ONLY the final improved experience text as plain text.";
+        break;
+      case ResumeSection.skills:
+        prompt = "Rewrite the user's skills to be concise, professional, and optimized for ATS. Remove redundancies and make them impactful. Return ONLY the final improved skills as plain text.";
+        break;
+      case ResumeSection.education:
+        prompt = "Rewrite the user's education section to be concise, professional, and results-oriented. Highlight achievements if possible. Return ONLY the final improved education text as plain text.";
+        break;
     }
 
     final response = await http.post(
@@ -21,28 +37,10 @@ class ResumeAiService {
       },
       body: jsonEncode({
         "model": "llama-3.3-70b-versatile",
-       "messages": [
-  {
-    "role": "system",
-    "content": """
-You are a professional resume writer.
-
-Rewrite the user's experience to be concise, achievement-oriented, and results-driven.
-Use strong action verbs.
-Quantify impact when possible.
-Make it ATS-friendly.
-
-Do NOT include explanations.
-Do NOT say "Here is the revised version".
-Do NOT provide alternatives.
-Return ONLY the final improved experience text as plain text.
-"""
-  },
-  {
-    "role": "user",
-    "content": input
-  }
-],
+        "messages": [
+          {"role": "system", "content": prompt},
+          {"role": "user", "content": input}
+        ],
         "temperature": 0.7,
       }),
     );
