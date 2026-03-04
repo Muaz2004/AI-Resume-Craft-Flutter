@@ -4,7 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ResumeAiService {
   final String _endpoint =
-      "https://api.groq.com/openai/v1/chat/completions";
+    "https://api.groq.com/openai/v1/chat/completions";
 
   String get _apiKey => dotenv.env['GROQ_API_KEY'] ?? '';
 
@@ -20,18 +20,29 @@ class ResumeAiService {
         "Authorization": "Bearer $_apiKey",
       },
       body: jsonEncode({
-        "model": "llama3-8b-8192",
-        "messages": [
-          {
-            "role": "system",
-            "content":
-                "You are a professional resume writer. Improve the following experience professionally. Keep it concise and impactful."
-          },
-          {
-            "role": "user",
-            "content": input
-          }
-        ],
+        "model": "llama-3.3-70b-versatile",
+       "messages": [
+  {
+    "role": "system",
+    "content": """
+You are a professional resume writer.
+
+Rewrite the user's experience to be concise, achievement-oriented, and results-driven.
+Use strong action verbs.
+Quantify impact when possible.
+Make it ATS-friendly.
+
+Do NOT include explanations.
+Do NOT say "Here is the revised version".
+Do NOT provide alternatives.
+Return ONLY the final improved experience text as plain text.
+"""
+  },
+  {
+    "role": "user",
+    "content": input
+  }
+],
         "temperature": 0.7,
       }),
     );
