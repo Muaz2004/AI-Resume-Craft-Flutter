@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:resume_ai/features/chat/presentation/chat_screen.dart';
 import 'package:resume_ai/features/resume/presentation/resume_list_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -14,7 +15,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   // Screens for each tab
   final List<Widget> _screens = [
     const ResumeListScreen(),       
-    const Center(child: Text('Chat Tab (Placeholder)')),  
+    const  ChatScreen(),
     const Center(child: Text('Profile Tab (Placeholder)')), 
   ];
 
