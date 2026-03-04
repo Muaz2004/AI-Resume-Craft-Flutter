@@ -1,60 +1,46 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:resume_ai/features/chat/data/chat_message_model.dart';
-import 'package:resume_ai/services/ai/resume_ai_service.dart';
+import 'package:resume_ai/services/chat/chat_ai_service.dart';
 
 
-final chatAiServiceProvider = Provider((ref) {
-  return ResumeAiService();
+class ChatMessage {
+  final String content;
+  final bool isUser;
+
+  ChatMessage({required this.content, required this.isUser});
+}
+
+final chatAiServiceProvider = Provider((ref) => ChatAiService());
+
+final chatProvider =
+    StateNotifierProvider<ChatNotifier, List<ChatMessage>>((ref) {
+  return ChatNotifier(ref.read);
 });
 
-
 class ChatNotifier extends StateNotifier<List<ChatMessage>> {
-  final Ref ref;
-  bool isLoading = false;
+  final Reader _read;
+  ChatNotifier(this._read) : super([]);
 
-  ChatNotifier(this.ref) : super([]);
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
 
-  Future<void> sendMessage(String content) async {
-    if (content.trim().isEmpty) return;
+  Future<void> sendMessage(String input) async {
+    if (input.trim().isEmpty) return;
 
-    
-    state = [
-      ...state,
-      ChatMessage(
-        content: content,
-        sender: "user",
-        timestamp: DateTime.now(),
-      )
-    ];
+    // Add user message immediately
+    state = [...state, ChatMessage(content: input, isUser: true)];
 
-    
-    isLoading = true;
+    _isLoading = true;
+
     try {
-    
-      final aiService = ref.read(chatAiServiceProvider);
-      final response = await aiService.enhanceText(content, ResumeSection.experience);
+      final response =
+          await _read(chatAiServiceProvider).sendMessage(input);
 
-      
-      state = [
-        ...state,
-        ChatMessage(
-          content: response,
-          sender: "ai",
-          timestamp: DateTime.now(),
-        )
-      ];
+      // Add AI response
+      state = [...state, ChatMessage(content: response, isUser: false)];
     } catch (e) {
-      
-      state = [
-        ...state,
-        ChatMessage(
-          content: "AI failed to respond: $e",
-          sender: "ai",
-          timestamp: DateTime.now(),
-        )
-      ];
+      state = [...state, ChatMessage(content: "Error: $e", isUser: false)];
     } finally {
-      isLoading = false;
+      _isLoading = false;
     }
   }
 
@@ -62,8 +48,3 @@ class ChatNotifier extends StateNotifier<List<ChatMessage>> {
     state = [];
   }
 }
-
-
-final chatProvider = StateNotifierProvider<ChatNotifier, List<ChatMessage>>(
-  (ref) => ChatNotifier(ref),
-);
