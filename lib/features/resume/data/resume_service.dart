@@ -13,7 +13,7 @@ Stream<List<ResumeModel>> streamResumesByUserId(String userId) {
         .collection('users')
         .doc(userId)
         .collection('resumes')
-        .orderBy('updatedAt', descending: true) // optional: latest first
+        .orderBy('updatedAt', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
             .map((doc) => ResumeModel.fromFirestore(doc.data() as Map<String, dynamic>))
