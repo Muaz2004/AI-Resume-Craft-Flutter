@@ -20,6 +20,7 @@ dependencies:
 
   # State Management
   flutter_riverpod: ^2.6.1
+  shared_preferences: ^2.1.1
 
   # Networking (AI API)
   dio: ^5.7.0

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:resume_ai/features/auth/presentation/profile_page.dart';
 import 'package:resume_ai/features/chat/presentation/chat_screen.dart';
 import 'package:resume_ai/features/resume/presentation/resume_list_screen.dart';
 
@@ -16,7 +17,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   final List<Widget> _screens = [
     const ResumeListScreen(),       
     const  ChatScreen(),
-    const Center(child: Text('Profile Tab (Placeholder)')), 
+    const ProfilePage(),
   ];
 
   @override
