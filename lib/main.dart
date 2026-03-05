@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:resume_ai/shared/providers/theme_provider.dart';
+
 import 'firebase_options.dart';
 import 'features/auth/presentation/auth_gate.dart';
+import 'core/theme/app_theme.dart';     
+  
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  //  Load environment variables
+  // Load environment variables
   await dotenv.load(fileName: ".env");
 
   // Initialize Firebase
@@ -23,19 +27,24 @@ Future<void> main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+
+   
+    final themeMode = ref.watch(themeProvider);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Resume AI',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-        ),
-      ),
+
+      
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeMode,
+
       home: const AuthGate(),
     );
   }
