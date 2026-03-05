@@ -7,7 +7,7 @@ import 'package:resume_ai/shared/providers/resume_ai_provider.dart';
 import 'package:resume_ai/shared/providers/resume_provider.dart';
 
 class ResumeFormScreen extends ConsumerStatefulWidget {
-  final ResumeModel? existingResume; 
+  final ResumeModel? existingResume;
 
   const ResumeFormScreen({super.key, this.existingResume});
 
@@ -29,7 +29,6 @@ class _ResumeFormScreenState extends ConsumerState<ResumeFormScreen> {
   @override
   void initState() {
     super.initState();
-    // Pre-fill controllers if editing an existing resume
     if (widget.existingResume != null) {
       final r = widget.existingResume!;
       _nameController.text = r.fullName;
@@ -58,11 +57,9 @@ class _ResumeFormScreenState extends ConsumerState<ResumeFormScreen> {
 
   void _saveResume() async {
     if (!_formKey.currentState!.validate()) return;
-
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
-    // Set loading state
     ref.read(resumeCreationStateProvider.notifier).state = true;
 
     final resume = ResumeModel(
@@ -89,17 +86,14 @@ class _ResumeFormScreenState extends ConsumerState<ResumeFormScreen> {
     try {
       if (widget.existingResume != null) {
         await ref.read(resumeServiceProvider).updateResume(resume);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Resume updated!')));
       } else {
         await ref.read(resumeServiceProvider).createResume(resume);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Resume created!')));
       }
-      Navigator.pop(context);
+
+      if (mounted) Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Failed to save resume: $e')));
+          .showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
       ref.read(resumeCreationStateProvider.notifier).state = false;
     }
@@ -108,196 +102,217 @@ class _ResumeFormScreenState extends ConsumerState<ResumeFormScreen> {
   @override
   Widget build(BuildContext context) {
     final isLoading = ref.watch(resumeCreationStateProvider);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.existingResume != null ? 'Edit Resume' : 'Create Resume'),
+        title:
+            Text(widget.existingResume != null ? 'Refine Resume' : 'New Resume'),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Full Name
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Full Name'),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Enter full name' : null,
+              _buildSectionCard(
+                title: "Personal Details",
+                icon: Icons.person_outline,
+                children: [
+                  _buildTextField(
+                    controller: _nameController,
+                    label: 'Full Name',
+                    hint: 'John Doe',
+                    validator: (v) => v!.isEmpty ? 'Required' : null,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    controller: _emailController,
+                    label: 'Email Address',
+                    hint: 'john@example.com',
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                          child: _buildTextField(
+                              controller: _phoneController, label: 'Phone')),
+                      const SizedBox(width: 12),
+                      Expanded(
+                          child: _buildTextField(
+                              controller: _addressController,
+                              label: 'Location')),
+                    ],
+                  ),
+                ],
               ),
-
-              // Email
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) return 'Enter email';
-                  final emailRegex =
-                      RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-                  if (!emailRegex.hasMatch(value)) return 'Enter a valid email';
-                  return null;
-                },
+              const SizedBox(height: 24),
+              _buildSectionCard(
+                title: "Professional Content",
+                icon: Icons.psychology_alt_outlined,
+                children: [
+                  _buildAIField(
+                    controller: _experienceController,
+                    label: 'Experience',
+                    section: ResumeSection.experience,
+                    maxLines: 4,
+                  ),
+                  const SizedBox(height: 20),
+                  _buildAIField(
+                    controller: _skillsController,
+                    label: 'Skills (Comma separated)',
+                    section: ResumeSection.skills,
+                    maxLines: 2,
+                  ),
+                  const SizedBox(height: 20),
+                  _buildAIField(
+                    controller: _educationController,
+                    label: 'Education',
+                    section: ResumeSection.education,
+                    maxLines: 2,
+                  ),
+                ],
               ),
-
-              // Phone Number
-              TextFormField(
-                controller: _phoneController,
-                decoration: const InputDecoration(labelText: 'Phone Number'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) return 'Enter phone number';
-                  final phoneRegex = RegExp(r'^\d{7,}$'); // min 7 digits
-                  if (!phoneRegex.hasMatch(value)) return 'Enter a valid phone number';
-                  return null;
-                },
-              ),
-
-              // Skills
-              TextFormField(
-                controller: _skillsController,
-                decoration: const InputDecoration(
-                  labelText: 'Skills (comma separated)',
-                ),
-              ),
-
-              // Education
-              TextFormField(
-                controller: _educationController,
-                decoration: const InputDecoration(labelText: 'Education'),
-              ),
-
-              // Address
-              TextFormField(
-                controller: _addressController,
-                decoration: const InputDecoration(labelText: 'Address'),
-              ),
-
-              // Experience
-              TextFormField(
-                controller: _experienceController,
-                decoration: const InputDecoration(labelText: 'Experience'),
-              ),
-
-              const SizedBox(height: 10),
-
-// AI Enhance Button
-
-Consumer(
-  builder: (context, ref, child) {
-    final aiState = ref.watch(resumeAiProvider);
-    return aiState.isLoading
-        ? const CircularProgressIndicator()
-        : ElevatedButton(
-            onPressed: () async {
-              try {
-                await ref
-                    .read(resumeAiProvider.notifier)
-                    .enhance(_experienceController.text, ResumeSection.experience);
-
-                final result = ref.read(resumeAiProvider);
-                if (result.asData != null) {
-                  _experienceController.text = result.asData!.value ?? '';
-                }
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Experience enhanced!')),
-                );
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('AI Enhancement failed: $e')),
-                );
-              }
-            },
-            child: const Text('Enhance Experience with AI'),
-          );
-  },
-),
-
-const SizedBox(height: 5),
-
-// Skills Button
-Consumer(
-  builder: (context, ref, child) {
-    final aiState = ref.watch(resumeAiProvider);
-    return aiState.isLoading
-        ? const CircularProgressIndicator()
-        : ElevatedButton(
-            onPressed: () async {
-              try {
-                await ref
-                    .read(resumeAiProvider.notifier)
-                    .enhance(_skillsController.text, ResumeSection.skills);
-
-                final result = ref.read(resumeAiProvider);
-                if (result.asData != null) {
-                  _skillsController.text = result.asData!.value ?? '';
-                }
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Skills enhanced!')),
-                );
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('AI Enhancement failed: $e')),
-                );
-              }
-            },
-            child: const Text('Enhance Skills with AI'),
-          );
-  },
-),
-
-const SizedBox(height: 5),
-
-// Education Button
-Consumer(
-  builder: (context, ref, child) {
-    final aiState = ref.watch(resumeAiProvider);
-    return aiState.isLoading
-        ? const CircularProgressIndicator()
-        : ElevatedButton(
-            onPressed: () async {
-              try {
-                await ref
-                    .read(resumeAiProvider.notifier)
-                    .enhance(_educationController.text, ResumeSection.education);
-
-                final result = ref.read(resumeAiProvider);
-                if (result.asData != null) {
-                  _educationController.text = result.asData!.value ?? '';
-                }
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Education enhanced!')),
-                );
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('AI Enhancement failed: $e')),
-                );
-              }
-            },
-            child: const Text('Enhance Education with AI'),
-          );
-  },
-),
-
-              
-
-              const SizedBox(height: 20),
-
-              // Save Button
+              const SizedBox(height: 32),
               isLoading
-                  ? const CircularProgressIndicator()
+                  ? const Center(child: CircularProgressIndicator.adaptive())
                   : ElevatedButton(
                       onPressed: _saveResume,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colorScheme.primary,
+                        foregroundColor: colorScheme.onPrimary,
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        elevation: 0,
+                      ),
                       child: Text(
-                        widget.existingResume != null ? 'Update Resume' : 'Generate Resume',
+                        widget.existingResume != null
+                            ? 'Update Resume'
+                            : 'Generate Professional CV',
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ),
+              const SizedBox(height: 40),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildSectionCard(
+      {required String title,
+      required IconData icon,
+      required List<Widget> children}) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 20, color: colorScheme.primary),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.primary),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: colorScheme.outline.withOpacity(0.1)),
+          ),
+          child: Column(children: children),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    String? hint,
+    int maxLines = 1,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      keyboardType: keyboardType,
+      validator: validator,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        alignLabelWithHint: true,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      ),
+    );
+  }
+
+  Widget _buildAIField({
+    required TextEditingController controller,
+    required String label,
+    required ResumeSection section,
+    int maxLines = 1,
+  }) {
+    return Consumer(
+      builder: (context, ref, _) {
+        final aiState = ref.watch(resumeAiProvider(section));
+        final isEnhancing = aiState.isLoading;
+
+        return TextFormField(
+          controller: controller,
+          maxLines: maxLines,
+          decoration: InputDecoration(
+            labelText: label,
+            alignLabelWithHint: true,
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12)),
+            suffixIcon: Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: isEnhancing
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : IconButton(
+                      icon: const Icon(Icons.psychology_alt_outlined,
+                          color: Color(0xFF2563EB)),
+                      tooltip: 'Enhance with AI',
+                      onPressed: () async {
+                        await ref
+                            .read(resumeAiProvider(section).notifier)
+                            .enhance(controller.text, section);
+
+                        final result =
+                            ref.read(resumeAiProvider(section));
+
+                        if (result.asData != null) {
+                          controller.text = result.asData!.value ?? '';
+                        }
+                      },
+                    ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
