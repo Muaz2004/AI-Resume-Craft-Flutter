@@ -152,7 +152,7 @@ class _ResumeFormScreenState extends ConsumerState<ResumeFormScreen> {
               const SizedBox(height: 24),
               _buildSectionCard(
                 title: "Professional Content",
-                icon: Icons.psychology_alt_outlined,
+                icon: Icons.auto_awesome,
                 children: [
                   _buildAIField(
                     controller: _experienceController,
@@ -293,7 +293,7 @@ class _ResumeFormScreenState extends ConsumerState<ResumeFormScreen> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : IconButton(
-                      icon: const Icon(Icons.psychology_alt_outlined,
+                      icon: const Icon(Icons.auto_awesome,
                           color: Color(0xFF2563EB)),
                       tooltip: 'Enhance with AI',
                       onPressed: () async {
