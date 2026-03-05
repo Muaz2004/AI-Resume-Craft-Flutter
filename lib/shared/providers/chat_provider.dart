@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:resume_ai/services/chat/chat_ai_service.dart';
 
-
 class ChatMessage {
   final String content;
   final bool isUser;
@@ -13,12 +12,13 @@ final chatAiServiceProvider = Provider((ref) => ChatAiService());
 
 final chatProvider =
     StateNotifierProvider<ChatNotifier, List<ChatMessage>>((ref) {
-  return ChatNotifier(ref.read);
+  return ChatNotifier(ref); 
 });
 
 class ChatNotifier extends StateNotifier<List<ChatMessage>> {
-  final Reader _read;
-  ChatNotifier(this._read) : super([]);
+  final Ref ref; 
+
+  ChatNotifier(this.ref) : super([]);
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -33,7 +33,7 @@ class ChatNotifier extends StateNotifier<List<ChatMessage>> {
 
     try {
       final response =
-          await _read(chatAiServiceProvider).sendMessage(input);
+          await ref.read(chatAiServiceProvider).sendMessage(input); 
 
       // Add AI response
       state = [...state, ChatMessage(content: response, isUser: false)];
