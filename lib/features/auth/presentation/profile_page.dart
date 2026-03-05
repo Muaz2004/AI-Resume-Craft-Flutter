@@ -5,9 +5,8 @@ import 'package:resume_ai/features/auth/presentation/auth_gate.dart';
 import '../../../shared/providers/theme_provider.dart';
 import '../../auth/logic/logout_service.dart';
 
-
-class ProfileScreen extends ConsumerWidget {
-  const ProfileScreen({super.key});
+class ProfilePage extends ConsumerWidget {
+  const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -54,9 +53,9 @@ class ProfileScreen extends ConsumerWidget {
                     child: ElevatedButton(
                       onPressed: () async {
                         await LogoutService().signOut();
-                        // Reset navigation stack after logout
                         Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(builder: (_) => const AuthGate()),
+                          MaterialPageRoute(
+                              builder: (_) => const AuthGate()),
                           (route) => false,
                         );
                       },
