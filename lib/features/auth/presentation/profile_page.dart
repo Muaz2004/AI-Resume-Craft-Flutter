@@ -75,11 +75,13 @@ class ProfilePage extends ConsumerWidget {
 
                 const SizedBox(height: 16),
 
-                /// USER NAME
+                /// NAME
                 Text(
                   user.displayName ?? 'Account Holder',
                   style: const TextStyle(
-                      fontSize: 22, fontWeight: FontWeight.bold),
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
 
                 /// EMAIL
@@ -92,7 +94,7 @@ class ProfilePage extends ConsumerWidget {
 
                 const SizedBox(height: 32),
 
-                /// PERSONAL INFORMATION
+                /// PERSONAL INFO
                 _buildSectionHeader("Personal Information"),
 
                 _buildCard([
@@ -157,45 +159,36 @@ class ProfilePage extends ConsumerWidget {
                           ref.read(themeProvider.notifier).toggleTheme(val),
                     ),
                   ),
-                ], theme),
 
-                const SizedBox(height: 40),
+                  const Divider(indent: 50),
 
-                /// LOGOUT BUTTON
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: const BorderSide(color: Colors.redAccent),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  /// LOGOUT TILE
+                  ListTile(
+                    leading: const Icon(
+                      Icons.logout,
+                      size: 20,
+                      color: Colors.redAccent,
+                    ),
+                    title: const Text(
+                      "Log Out",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: Colors.redAccent,
                       ),
                     ),
-                    onPressed: () async {
+                    onTap: () async {
                       await LogoutService().signOut();
                       if (context.mounted) {
                         Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
-                              builder: (_) => const AuthGate()),
+                            builder: (_) => const AuthGate(),
+                          ),
                           (route) => false,
                         );
                       }
                     },
-                    icon: const Icon(
-                      Icons.logout_rounded,
-                      size: 18,
-                      color: Colors.redAccent,
-                    ),
-                    label: const Text(
-                      "Log Out",
-                      style: TextStyle(
-                        color: Colors.redAccent,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
                   ),
-                ),
+                ], theme),
 
                 const SizedBox(height: 24),
               ],
