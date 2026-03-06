@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:resume_ai/features/auth/presentation/profile_page.dart';
 import 'package:resume_ai/features/resume/presentation/resume_detail_screen.dart';
 import 'package:resume_ai/features/resume/presentation/resume_form_screen.dart';
 import 'package:resume_ai/shared/providers/resume_provider.dart';
@@ -28,7 +29,14 @@ class ResumeListScreen extends ConsumerWidget {
         ),
         actions: [
           IconButton(
-            onPressed: () {}, 
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const ProfilePage(),
+                ),
+              );
+            }, 
             icon: Icon(Icons.account_circle_outlined, size: 28, color: colorScheme.onPrimary),
           ),
           const SizedBox(width: 8),

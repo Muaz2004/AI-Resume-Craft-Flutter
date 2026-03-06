@@ -19,7 +19,7 @@ class ProfilePage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Account',
+          'My Account',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
