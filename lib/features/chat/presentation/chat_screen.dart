@@ -41,27 +41,32 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: theme.brightness == Brightness.dark 
-          ? colorScheme.background 
-          : const Color(0xFFF8FAFC), // Modern soft slate
+      backgroundColor: theme.brightness == Brightness.dark
+          ? colorScheme.background
+          : const Color(0xFFF8FAFC),
       appBar: AppBar(
         title: Row(
           children: [
-            // Your custom Gradient Icon branding
             ShaderMask(
               shaderCallback: (bounds) => const LinearGradient(
-                colors: [Color(0xFF9333EA), Color(0xFF2563EB), Color(0xFF22D3EE)],
+                colors: [
+                  Color(0xFF9333EA),
+                  Color(0xFF2563EB),
+                  Color(0xFF22D3EE)
+                ],
               ).createShader(bounds),
-              child: const Icon(Icons.psychology_alt, color: Colors.white, size: 28),
+              child:
+                  const Icon(Icons.psychology_alt, color: Colors.white, size: 28),
             ),
             const SizedBox(width: 12),
-            const Text("Career Assistant", style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text("Career Assistant",
+                style: TextStyle(fontWeight: FontWeight.bold)),
           ],
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
-            onPressed: () => ref.refresh(chatProvider), // Optional: clear chat
+            onPressed: () => ref.refresh(chatProvider),
           ),
           const SizedBox(width: 8),
         ],
@@ -71,25 +76,27 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           Expanded(
             child: ListView.builder(
               controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 final msg = messages[index];
                 final isUser = msg.isUser;
 
                 return Align(
-                  alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment:
+                      isUser ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
                     margin: EdgeInsets.only(
                       bottom: 12,
                       left: isUser ? 50 : 0,
                       right: isUser ? 0 : 50,
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 16),
                     decoration: BoxDecoration(
-                      color: isUser 
-                          ? colorScheme.primary 
-                          : colorScheme.surface,
+                      color:
+                          isUser ? colorScheme.primary : colorScheme.surface,
                       borderRadius: BorderRadius.only(
                         topLeft: const Radius.circular(20),
                         topRight: const Radius.circular(20),
@@ -104,26 +111,28 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         ),
                       ],
                     ),
-                    child: Text(
-                      msg.content,
-                      style: TextStyle(
-                        fontSize: 15,
-                        height: 1.4,
-                        color: isUser ? colorScheme.onPrimary : colorScheme.onSurface,
-                      ),
-                    ),
+                    child: isUser
+                        ? Text(
+                            msg.content,
+                            style: TextStyle(
+                              fontSize: 15,
+                              height: 1.4,
+                              color: colorScheme.onPrimary,
+                            ),
+                          )
+                        : _formattedAiText(msg.content, colorScheme),
                   ),
                 );
               },
             ),
           ),
-          
-          // --- FLOATING INPUT BAR ---
+
           Container(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
             decoration: BoxDecoration(
               color: theme.cardColor,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(24)),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.05),
@@ -147,9 +156,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         maxLines: null,
                         decoration: InputDecoration(
                           hintText: "Ask about your career...",
-                          hintStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.4)),
+                          hintStyle: TextStyle(
+                              color: colorScheme.onSurface.withOpacity(0.4)),
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                          contentPadding:
+                              const EdgeInsets.symmetric(horizontal: 12),
                         ),
                         onSubmitted: (_) => _handleSend(chatNotifier),
                       ),
@@ -162,19 +173,25 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: const LinearGradient(
-                            colors: [Color(0xFF9333EA), Color(0xFF2563EB), Color(0xFF22D3EE)],
+                            colors: [
+                              Color(0xFF9333EA),
+                              Color(0xFF2563EB),
+                              Color(0xFF22D3EE)
+                            ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: colorScheme.primary.withOpacity(0.3),
+                              color:
+                                  colorScheme.primary.withOpacity(0.3),
                               blurRadius: 8,
                               offset: const Offset(0, 4),
                             )
                           ],
                         ),
-                        child: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+                        child: const Icon(Icons.send_rounded,
+                            color: Colors.white, size: 20),
                       ),
                     ),
                   ],
@@ -190,10 +207,42 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void _handleSend(dynamic chatNotifier) async {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
-    
+
     _controller.clear();
     _scrollToBottom();
     await chatNotifier.sendMessage(text);
     _scrollToBottom();
+  }
+
+  Widget _formattedAiText(String text, ColorScheme colorScheme) {
+    final lines = text.split('\n');
+
+    return RichText(
+      text: TextSpan(
+        children: lines.map((line) {
+          final trimmed = line.trim();
+
+          if (trimmed.endsWith(':') && trimmed.length < 40) {
+            return TextSpan(
+              text: "$trimmed\n",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: colorScheme.onSurface,
+              ),
+            );
+          }
+
+          return TextSpan(
+            text: "$line\n",
+            style: TextStyle(
+              fontSize: 15,
+              height: 1.5,
+              color: colorScheme.onSurface,
+            ),
+          );
+        }).toList(),
+      ),
+    );
   }
 }
