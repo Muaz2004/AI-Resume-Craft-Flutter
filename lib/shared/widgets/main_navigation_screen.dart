@@ -33,8 +33,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             label: 'Resumes',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            label: 'Chat',
+            icon: Icon(Icons.smart_toy_outlined),
+            label: 'Chat with AI',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
