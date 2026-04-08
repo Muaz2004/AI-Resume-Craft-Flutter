@@ -24,6 +24,8 @@ Seamlessly switch between themes with persistence.
  **PDF Export & Share**  
 Download or share generated resumes.
 
+**profile settings** 
+for accesssing private information
 ---
 
 ##  Tech Stack
